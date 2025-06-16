@@ -56,8 +56,8 @@ git clone --depth=1 https://github.com/vinceliuice/MacSequoia-kde.git ~/MacSequo
 cd ~/MacSequoia-kde
 # Check available options first
 ./install.sh --help || true
-# Install with supported options (removed -l flag)
-./install.sh -c -p -s -i
+# Install with supported options (removed -l -p -s -c -i flag)
+./install.sh     
 cd ~
 rm -rf ~/MacSequoia-kde
 
@@ -71,7 +71,17 @@ kwriteconfig5 --file kdeglobals --group General --key toolBarFont "SF Pro Displa
 
 # === STEP 5: Apply macOS Sequoia theme ===
 echo "🎨 Applying theme..."
-lookandfeeltool -a MacSequoiaLight
+
+if [[ -n "$WAYLAND_DISPLAY" ]] || [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+  echo "➡ Detected Wayland session. Applying theme with Wayland support..."
+  QT_QPA_PLATFORM=wayland lookandfeeltool -a MacSequoiaLight
+elif [[ -n "$DISPLAY" ]]; then
+  echo "➡ Detected X11 session. Applying theme..."
+  lookandfeeltool -a MacSequoiaLight
+else
+  echo "⚠️  No graphical session detected. Skipping theme application."
+fi
+
 kwriteconfig5 --file kcminputrc --group Mouse --key cursorTheme Bibata-Modern-Ice
 kwriteconfig5 --file kdeglobals --group Icons --key Theme MacSequoia
 
