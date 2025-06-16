@@ -23,7 +23,8 @@ sudo pacman -S --noconfirm \
   kde-applications-meta \
   sddm sddm-kcm \
   xdg-desktop-portal-kde \
-  qt6-wayland plasma-wayland-session \
+  qt6-wayland \
+  plasma-workspace \
   dolphin konsole firefox \
   pipewire pipewire-pulse wireplumber \
   networkmanager \
