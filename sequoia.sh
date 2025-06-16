@@ -45,7 +45,7 @@ yay -S --noconfirm \
   bibata-cursor-theme \
   whitesur-icon-theme \
   whitesur-gtk-theme \
-  latte-dock \
+  plasma6-applets-panel-colorizer \
   plasma6-applets-window-appmenu \
   swww \
   albert
@@ -106,17 +106,67 @@ else
   "
 fi
 
-# === STEP 7: Configure Latte Dock (minimal setup) ===
-echo "🚢 Setting up Latte Dock..."
-mkdir -p ~/.config/autostart
+# === STEP 7: Configure macOS-like dock using Plasma Panel ===
+echo "🚢 Setting up macOS-like dock with Panel Colorizer..."
 
-cat <<EOF > ~/.config/autostart/latte-dock.desktop
+# Configure the bottom panel to behave like macOS dock
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --key activityId ""
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --key formfactor 2
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --key immutability 1
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --key lastScreen 0
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --key location 4
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --key plugin "org.kde.panel"
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --key wallpaperplugin "org.kde.image"
+
+# Panel configuration - macOS dock style
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group General --key alignment 132
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group General --key panelOpacity 0
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group General --key length 70
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group General --key maxLength 70
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group General --key minLength 70
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group General --key offset 0
+
+# Panel visibility - auto-hide like macOS dock
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group General --key panelVisibility 1
+
+# Configure panel size (height for bottom panel)
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group General --key thickness 52
+
+# Add Task Manager to the dock panel
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --key immutability 1
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --key plugin "org.kde.plasma.taskmanager"
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --group Configuration --key PreloadWeight 100
+
+# Task Manager configuration - macOS dock behavior
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --group Configuration --group General --key launchers "applications:systemsettings.desktop,applications:org.kde.dolphin.desktop,applications:firefox.desktop,applications:org.kde.konsole.desktop,applications:org.kde.kate.desktop"
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --group Configuration --group General --key showOnlyCurrentDesktop false
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --group Configuration --group General --key showOnlyCurrentActivity false
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --group Configuration --group General --key groupingStrategy 0
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --group Configuration --group General --key onlyGroupWhenFull true
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --group Configuration --group General --key forceStripes true
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 21 --group Configuration --group General --key iconSize 2
+
+# Add Panel Colorizer for transparency effects
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 22 --key immutability 1
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 22 --key plugin "org.kde.plasma.panelcolorizer"
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 22 --group Configuration --key PreloadWeight 100
+
+# Panel Colorizer configuration for macOS-like transparency
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 22 --group Configuration --group General --key panelTransparency 40
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 22 --group Configuration --group General --key panelBlur true
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 22 --group Configuration --group General --key panelBgColor "240,240,240"
+kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 22 --group Configuration --group General --key panelRoundness 12
+
+# Create autostart entry to reload plasma configuration after login
+mkdir -p ~/.config/autostart
+cat <<EOF > ~/.config/autostart/plasma-dock-setup.desktop
 [Desktop Entry]
 Type=Application
-Exec=sh -c 'sleep 5 && latte-dock --replace'
+Exec=sh -c 'sleep 3 && qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var panels = panels(); for (var i in panels) { if (panels[i].location == \"bottom\") { panels[i].height = 52; } }"'
 Hidden=false
 X-GNOME-Autostart-enabled=true
-Name=Latte Dock
+Name=macOS Dock Setup
+Comment=Configure dock panel after login
 EOF
 
 # === STEP 8: Optimized KWin effects (performance-focused) ===
@@ -519,12 +569,17 @@ systemctl --user mask baloo-file-extractor
 
 echo -e "\n✅ Enhanced macOS Sequoia setup complete!"
 echo -e "🔄 Reboot to apply all changes."
-echo -e "\n📋 Post-install manual steps:"
+echo -e "\n📋 Post-install verification steps:"
 echo -e "   1. Open Konsole and verify macOS Sequoia profile is active"
 echo -e "   2. In Dolphin: View > Show Panels > Places (if not visible)"
 echo -e "   3. Run Albert once: 'albert' then configure autostart if desired"
-echo -e "   4. Configure Latte Dock layout (will start automatically after reboot)"
+echo -e "   4. Bottom panel should auto-configure as macOS-like dock"
 echo -e "   5. System Settings > Appearance > Application Style > Configure GNOME/GTK Application Style"
+echo -e "\n🍎 Automated macOS Dock Setup:"
+echo -e "   • Panel Colorizer configured for dock-like transparency and blur"
+echo -e "   • Bottom panel set to auto-hide with centered alignment"
+echo -e "   • Task Manager configured with macOS-style app launchers"
+echo -e "   • Panel height optimized at 52px for dock appearance"
 echo -e "\n🎨 Theme coherence improvements:"
 echo -e "   • Konsole matches macOS Terminal.app colors and fonts"
 echo -e "   • Dolphin toolbar simplified to Finder-like layout"
