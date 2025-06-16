@@ -54,7 +54,10 @@ yay -S --noconfirm \
 echo "🎨 Installing MacSequoia KDE theme..."
 git clone --depth=1 https://github.com/vinceliuice/MacSequoia-kde.git ~/MacSequoia-kde
 cd ~/MacSequoia-kde
-./install.sh -c -l -p -s -i
+# Check available options first
+./install.sh --help || true
+# Install with supported options (removed -l flag)
+./install.sh -c -p -s -i
 cd ~
 rm -rf ~/MacSequoia-kde
 
